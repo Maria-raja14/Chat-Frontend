@@ -14,7 +14,7 @@ export function createSocket(token) {
 
   socket = io(backendUrl, {
     auth: { token },
-    transports: ['websocket'],
+    transports: ['websocket', 'polling'],
     autoConnect: false,
   });
 
