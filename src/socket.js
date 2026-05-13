@@ -1,6 +1,7 @@
 import { io } from 'socket.io-client';
 
-const backendUrl = (import.meta.env.VITE_API_URL || 'http://localhost:4000/api').replace(/\/api$/, '');
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const socketUrl = import.meta.env.VITE_SOCKET_URL || apiUrl.replace(/\/api$/, '');
 let socket = null;
 
 export function createSocket(token) {
@@ -12,7 +13,7 @@ export function createSocket(token) {
     socket.disconnect();
   }
 
-  socket = io(backendUrl, {
+  socket = io(socketUrl, {
     auth: { token },
     transports: ['websocket', 'polling'],
     autoConnect: false,

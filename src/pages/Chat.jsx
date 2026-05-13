@@ -13,6 +13,7 @@ export default function Chat() {
   const [newMessage, setNewMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('chats');
 
   const user = useMemo(() => getUser(), []);
 
@@ -148,145 +149,206 @@ export default function Chat() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-96 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.12),_transparent_60%)]" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-72 bg-[radial-gradient(circle,_rgba(168,85,247,0.10),_transparent_50%)]" />
+    <div className="relative min-h-screen bg-[#0B0F19] text-slate-100 overflow-hidden font-sans">
+      {/* Background decorations */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/10 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-cyan-500/10 blur-[120px] pointer-events-none" />
 
-      <header className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-6 py-8 lg:px-8">
-        <div>
-          <p className="text-sm uppercase tracking-[0.35em] text-cyan-300/70">SilverChat</p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-tight text-slate-50 sm:text-5xl">Premium secure chat</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base">Connect directly with registered users using encrypted chat IDs, live messaging, and a polished premium experience.</p>
+      <header className="relative z-10 mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-6 py-6 lg:px-8">
+        <div className="flex items-center gap-4">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-cyan-500 to-indigo-500 shadow-glow">
+            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+            </svg>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-white">ChatApp</h1>
+            <p className="text-sm font-medium text-cyan-400">Secure connection</p>
+          </div>
         </div>
 
-        <div className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-slate-900/90 p-4 shadow-2xl shadow-cyan-500/10 backdrop-blur-xl">
+        <div className="flex items-center gap-6 rounded-2xl border border-white/5 bg-white/[0.02] px-6 py-3 shadow-xl backdrop-blur-xl">
           <div className="flex items-center gap-3">
-            <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-gradient-to-br from-cyan-400 to-blue-700 text-xl font-bold text-slate-950">{user?.username?.charAt(0).toUpperCase()}</div>
-            <div>
-              <p className="text-sm uppercase tracking-[0.25em] text-slate-400/90">Signed in as</p>
-              <p className="text-lg font-semibold text-slate-100">{user?.displayName || user?.username}</p>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 font-bold text-white shadow-lg">{user?.username?.charAt(0).toUpperCase()}</div>
+            <div className="hidden sm:block">
+              <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Signed in as</p>
+              <p className="text-sm font-semibold text-white">{user?.displayName || user?.username}</p>
             </div>
           </div>
-          <button onClick={handleLogout} className="rounded-3xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 hover:text-slate-950">Logout</button>
+          <div className="w-px h-8 bg-white/10 hidden sm:block"></div>
+          <button onClick={handleLogout} className="text-sm font-semibold text-slate-300 transition hover:text-rose-400">Logout</button>
         </div>
       </header>
 
-      <main className="mx-auto grid max-w-[1400px] gap-6 px-6 pb-10 lg:grid-cols-[360px_1fr] lg:px-8">
-        <section className="space-y-6">
-          <div className="rounded-[2rem] border border-white/10 bg-slate-800/90 p-6 shadow-2xl shadow-slate-950/20 backdrop-blur-xl">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm uppercase tracking-[0.35em] text-cyan-300/80">Conversations</p>
-                <h2 className="mt-3 text-2xl font-semibold text-slate-50">Your recent chats</h2>
-              </div>
-              <span className="rounded-full bg-cyan-500/10 px-3 py-1 text-sm font-medium text-cyan-300">{chats.length} chats</span>
+      <main className="relative z-10 mx-auto grid max-w-[1400px] gap-6 px-6 pb-10 lg:grid-cols-[360px_1fr] lg:px-8 h-[calc(100vh-100px)]">
+        <section className="flex flex-col gap-6 overflow-hidden h-full">
+          <div className="flex-1 flex flex-col rounded-3xl border border-white/5 bg-white/[0.02] p-6 shadow-2xl backdrop-blur-3xl overflow-hidden">
+            <div className="flex items-center gap-4 mb-6 shrink-0 bg-white/5 p-1.5 rounded-2xl">
+              <button 
+                onClick={() => setActiveTab('chats')} 
+                className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all duration-300 ${activeTab === 'chats' ? 'bg-gradient-to-r from-cyan-500 to-indigo-500 text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+              >
+                Chats <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${activeTab === 'chats' ? 'bg-white/20' : 'bg-white/10'}`}>{chats.length}</span>
+              </button>
+              <button 
+                onClick={() => setActiveTab('contacts')} 
+                className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all duration-300 ${activeTab === 'contacts' ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+              >
+                Contacts <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${activeTab === 'contacts' ? 'bg-white/20' : 'bg-white/10'}`}>{users.length}</span>
+              </button>
             </div>
 
-            <div className="mt-6 space-y-3">
-              {chats.length === 0 ? (
-                <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-950/80 p-6 text-sm text-slate-400">No chats yet. Pick a user below to start messaging.</div>
-              ) : (
-                chats.map((chat) => {
-                  const contact = chat.userA?.username === user.username ? chat.userB : chat.userA;
-                  return (
-                    <button
-                      key={chat.id}
-                      type="button"
-                      onClick={() => selectChat(chat)}
-                      className={`w-full rounded-3xl border px-4 py-4 text-left transition ${selectedChat?.id === chat.id ? 'border-cyan-400/40 bg-cyan-500/10 shadow-[0_20px_60px_rgba(34,211,238,0.12)]' : 'border-white/5 bg-slate-950/80 hover:border-white/10 hover:bg-slate-900/90'}`}>
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-base font-semibold text-slate-50">{contact?.displayName || contact?.username || 'Unknown'}</p>
-                          <p className="mt-1 text-sm text-slate-400">{chat.lastMessage || 'No messages yet.'}</p>
+            <div className="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+              {activeTab === 'chats' ? (
+                chats.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-8 text-center text-sm text-slate-400 mt-4 flex flex-col items-center gap-3">
+                    <svg className="w-8 h-8 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" /></svg>
+                    No chats yet.<br/>Switch to Contacts to start one.
+                  </div>
+                ) : (
+                  chats.map((chat) => {
+                    const contact = chat.userA?.username === user.username ? chat.userB : chat.userA;
+                    const isActive = selectedChat?.id === chat.id;
+                    return (
+                      <button
+                        key={chat.id}
+                        type="button"
+                        onClick={() => selectChat(chat)}
+                        className={`group w-full rounded-2xl border p-4 text-left transition-all duration-300 ${isActive ? 'border-cyan-500/50 bg-gradient-to-r from-cyan-500/10 to-indigo-500/10 shadow-[0_0_20px_rgba(6,182,212,0.15)] scale-[1.02]' : 'border-transparent bg-white/5 hover:bg-white/10 hover:scale-[1.01]'}`}
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="relative">
+                              <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-bold text-white shadow-lg transition-transform ${isActive ? 'bg-gradient-to-br from-cyan-400 to-indigo-500 scale-110' : 'bg-slate-700 group-hover:scale-105'}`}>
+                                {(contact?.displayName || contact?.username || 'U')[0]?.toUpperCase()}
+                              </div>
+                              <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-[#0B0F19] rounded-full"></span>
+                            </div>
+                            <div className="min-w-0">
+                              <p className={`truncate text-sm font-bold ${isActive ? 'text-white' : 'text-slate-200'}`}>{contact?.displayName || contact?.username || 'Unknown'}</p>
+                              <p className={`truncate text-xs mt-1 font-medium ${isActive ? 'text-cyan-200/80' : 'text-slate-400'}`}>{chat.lastMessage || 'No messages yet.'}</p>
+                            </div>
+                          </div>
+                          <span className={`shrink-0 text-[10px] font-bold tracking-wider uppercase ${isActive ? 'text-cyan-400' : 'text-slate-500'}`}>{new Date(chat.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         </div>
-                        <span className="rounded-full bg-slate-800 px-3 py-1 text-xs uppercase tracking-[0.25em] text-slate-400">{new Date(chat.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      </button>
+                    );
+                  })
+                )
+              ) : (
+                users.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-8 text-center text-sm text-slate-400 mt-4">No contacts found.</div>
+                ) : (
+                  users.map((participant) => (
+                    <button
+                      key={participant.id}
+                      type="button"
+                      onClick={() => handleCreateChat(participant.id)}
+                      className="group w-full rounded-2xl border border-transparent bg-white/5 p-4 text-left transition-all duration-300 hover:bg-white/10 hover:border-white/10 hover:scale-[1.01] flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-sm font-bold text-white shadow-lg group-hover:scale-110 transition-transform">
+                          {(participant.displayName || participant.username || 'U')[0]?.toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-bold text-slate-200 group-hover:text-white transition-colors">{participant.displayName || participant.username}</p>
+                          <p className="truncate text-xs text-slate-500 font-medium">@{participant.username}</p>
+                        </div>
+                      </div>
+                      <div className="h-8 w-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-indigo-500/20 group-hover:text-indigo-400 text-slate-500 transition-colors">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
                       </div>
                     </button>
-                  );
-                })
+                  ))
+                )
               )}
-            </div>
-          </div>
-
-          <div className="rounded-[2rem] border border-white/10 bg-slate-800/90 p-6 shadow-2xl shadow-slate-950/20 backdrop-blur-xl">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm uppercase tracking-[0.35em] text-cyan-300/80">Contacts</p>
-                <h2 className="mt-3 text-2xl font-semibold text-slate-50">Registered users</h2>
-              </div>
-              <span className="rounded-full bg-slate-800/90 px-3 py-1 text-sm text-slate-400">{users.length}</span>
-            </div>
-
-            <div className="mt-6 space-y-3">
-              {users.map((participant) => (
-                <button
-                  key={participant.id}
-                  type="button"
-                  onClick={() => handleCreateChat(participant.id)}
-                  className="w-full rounded-3xl border border-white/5 bg-slate-950/80 px-4 py-4 text-left transition hover:border-cyan-400/30 hover:bg-slate-900/90"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-gradient-to-br from-cyan-500 to-sky-600 text-lg font-semibold text-slate-950">{(participant.displayName || participant.username || 'U')[0]?.toUpperCase()}</div>
-                    <div className="min-w-0">
-                      <p className="text-base font-semibold text-slate-50">{participant.displayName || participant.username}</p>
-                      <p className="mt-1 text-sm text-slate-400">@{participant.username}</p>
-                    </div>
-                  </div>
-                </button>
-              ))}
             </div>
           </div>
         </section>
 
-        <section className="rounded-[2rem] border border-white/10 bg-slate-800/90 p-6 shadow-2xl shadow-slate-950/20 backdrop-blur-xl">
-          <div className="flex flex-col gap-3 rounded-[1.75rem] border border-white/5 bg-slate-950/70 p-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm uppercase tracking-[0.35em] text-cyan-300/70">Live conversation</p>
-              <h2 className="mt-2 text-3xl font-semibold text-slate-50">{selectedChat ? `Chat with ${selectedChatTitle}` : 'Select a chat to start'}</h2>
-            </div>
-            <div className="text-sm text-slate-400">Encrypted connections · Realtime updates</div>
-          </div>
+        <section className="flex flex-col h-full rounded-3xl border border-white/5 bg-white/[0.02] shadow-2xl backdrop-blur-3xl overflow-hidden">
+          {selectedChat ? (
+            <>
+              <div className="flex items-center justify-between border-b border-white/5 bg-white/5 px-6 py-5 shrink-0">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 text-lg font-bold text-white shadow-lg">
+                    {selectedChatTitle[0]?.toUpperCase()}
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-white">{selectedChatTitle}</h2>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                      </span>
+                      <span className="text-xs font-medium text-emerald-400">Online</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-          {error && <div className="mt-6 rounded-3xl border border-rose-500/20 bg-rose-500/10 px-5 py-4 text-sm text-rose-100">{error}</div>}
-
-          <div className="mt-6 flex h-[520px] flex-col rounded-[2rem] border border-white/5 bg-slate-950/90 p-5 shadow-inner shadow-slate-950/20">
-            {selectedChat ? (
-              <div className="flex-1 overflow-y-auto pr-2">
-                <div className="space-y-4">
+              <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                <div className="space-y-6">
                   {messages.map((message) => {
                     const isMine = message.sender?.username === user.username;
                     return (
-                      <div key={message.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[80%] rounded-3xl px-5 py-4 ${isMine ? 'bg-cyan-500 text-slate-950' : 'bg-slate-800 text-slate-100'}`}>
-                          <p className="font-medium">{message.sender?.displayName || message.sender?.username || 'Unknown'}</p>
-                          <p className="mt-2 text-sm leading-6">{message.content}</p>
-                          <p className="mt-3 text-right text-[11px] uppercase tracking-[0.24em] text-slate-400">{new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                      <div key={message.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'} animate-[fadeIn_0.3s_ease-out]`}>
+                        <div className={`relative max-w-[75%] rounded-2xl px-5 py-3 shadow-md transition-all hover:scale-[1.01] ${isMine ? 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white rounded-br-sm' : 'bg-white/10 text-slate-100 rounded-bl-sm border border-white/5 backdrop-blur-md'}`}>
+                          {!isMine && <p className="mb-1.5 text-[11px] font-bold tracking-wide text-indigo-300 uppercase">{message.sender?.displayName || message.sender?.username}</p>}
+                          <p className="text-[15px] leading-relaxed">{message.content}</p>
+                          <p className={`mt-2.5 text-[10px] font-bold ${isMine ? 'text-cyan-100/70' : 'text-slate-400/70'} text-right`}>
+                            {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </p>
                         </div>
                       </div>
                     );
                   })}
                 </div>
               </div>
-            ) : (
-              <div className="flex flex-1 items-center justify-center rounded-[1.75rem] border border-dashed border-white/10 bg-slate-950/80 p-8 text-center text-slate-400">
-                Select a registered user or recent chat to start messaging.
-              </div>
-            )}
-          </div>
 
-          {selectedChat && (
-            <form className="mt-6 flex gap-3 rounded-[2rem] border border-white/5 bg-slate-950/90 p-4 shadow-inner shadow-slate-950/10" onSubmit={handleSendMessage}>
-              <input
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Type your message..."
-                className="min-w-0 flex-1 rounded-3xl border border-white/10 bg-slate-950/90 px-5 py-4 text-slate-100 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20"
-              />
-              <button type="submit" className="rounded-3xl bg-cyan-500 px-6 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-slate-950 transition hover:bg-cyan-400">Send</button>
-            </form>
+              <div className="border-t border-white/5 bg-white/5 p-4 shrink-0">
+                <form className="flex gap-3" onSubmit={handleSendMessage}>
+                  <input
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder="Type your message..."
+                    className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/5 px-5 py-3.5 text-white placeholder-slate-400 outline-none transition focus:border-cyan-500 focus:bg-white/10 focus:ring-1 focus:ring-cyan-500"
+                  />
+                  <button type="submit" disabled={!newMessage.trim()} className="rounded-2xl bg-gradient-to-r from-cyan-500 to-indigo-500 px-6 py-3.5 text-sm font-semibold text-white shadow-lg transition hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center">
+                    <svg className="w-5 h-5 ml-1 transform rotate-90" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                    </svg>
+                  </button>
+                </form>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
+              <div className="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-white/5 text-slate-500">
+                <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Your Messages</h3>
+              <p className="text-slate-400 max-w-sm">Select a contact or recent chat from the sidebar to start a secure conversation.</p>
+            </div>
           )}
         </section>
       </main>
+
+      {/* Global CSS for custom scrollbar and animations */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}} />
     </div>
   );
 }

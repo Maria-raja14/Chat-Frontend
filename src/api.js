@@ -31,6 +31,16 @@ export async function login(data) {
   return getPayload(response);
 }
 
+export async function sendOtp(data) {
+  const response = await api.post('/otp/send', data);
+  return getPayload(response);
+}
+
+export async function verifyOtp(data) {
+  const response = await api.post('/otp/verify', data);
+  return getPayload(response);
+}
+
 export async function fetchChats() {
   const response = await api.get('/chat');
   return getPayload(response);
