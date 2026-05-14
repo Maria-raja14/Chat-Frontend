@@ -8,7 +8,7 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
-  
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -19,11 +19,10 @@ export default function Register() {
 
     try {
       const response = await sendOtp({ email });
-      alert(`For testing purposes, your OTP is: ${response.code}`);
-      navigate('/otp', { 
-        state: { 
+      navigate('/otp', {
+        state: {
           registrationData: { username, email, password, displayName }
-        } 
+        }
       });
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to send OTP.');
