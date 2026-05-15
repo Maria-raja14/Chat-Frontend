@@ -46,9 +46,6 @@ export default function Register() {
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Create Account</h1>
           <p className="text-sm text-slate-400">Join ChatApp to connect with your friends instantly.</p>
-          <p className="text-sm text-slate-400">Join ChatApp to connect with your friends instantly.</p>
-          <p className="text-sm text-slate-400">Join ChatApp to connect with your friends instantly.</p>
-
         </div>
 
         <form className="grid gap-5" onSubmit={handleRequestOtp}>
