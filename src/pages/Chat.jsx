@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createSocket, disconnectSocket, getSocket } from '../socket.js';
-import { fetchChats, fetchMessages, fetchUsers, createChat } from '../api.js';
+import { fetchChats, fetchMessages, fetchUsers, createChat, uploadFile } from '../api.js';
 import { clearAuth, getToken, getUser } from '../utils/auth.js';
 
 export default function Chat() {
@@ -14,6 +14,8 @@ export default function Chat() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('chats');
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const fileInputRef = useRef(null);
 
   const user = useMemo(() => getUser(), []);
 
@@ -146,6 +148,30 @@ export default function Chat() {
     clearAuth();
     disconnectSocket();
     navigate('/login');
+  }
+
+  async function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setUploadingFile(true);
+    setError('');
+
+    try {
+      const data = await uploadFile(file);
+      const socket = getSocket();
+      const fileName = data.fileRecord?.originalName || file.name;
+      const fileUrl = data.fileUrl || data.fileRecord?.s3Url;
+      const messageText = `File Attached: ${fileName}\n${fileUrl}`;
+      socket?.emit('private_message', { chatId: selectedChat.id, text: messageText });
+    } catch (err) {
+      setError('Failed to upload file.');
+    } finally {
+      setUploadingFile(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
   }
 
   return (
@@ -297,7 +323,17 @@ export default function Chat() {
                       <div key={message.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'} animate-[fadeIn_0.3s_ease-out]`}>
                         <div className={`relative max-w-[75%] rounded-2xl px-5 py-3 shadow-md transition-all hover:scale-[1.01] ${isMine ? 'bg-gradient-to-br from-cyan-500 to-blue-600 text-white rounded-br-sm' : 'bg-white/10 text-slate-100 rounded-bl-sm border border-white/5 backdrop-blur-md'}`}>
                           {!isMine && <p className="mb-1.5 text-[11px] font-bold tracking-wide text-indigo-300 uppercase">{message.sender?.displayName || message.sender?.username}</p>}
-                          <p className="text-[15px] leading-relaxed">{message.content}</p>
+                          <div className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">
+                            {message.content.split(/(https?:\/\/[^\s]+)/g).map((part, i) => 
+                              part.match(/^https?:\/\/[^\s]+$/) ? (
+                                <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-cyan-200 underline hover:text-white transition-colors break-all">
+                                  {part}
+                                </a>
+                              ) : (
+                                <span key={i}>{part}</span>
+                              )
+                            )}
+                          </div>
                           <p className={`mt-2.5 text-[10px] font-bold ${isMine ? 'text-cyan-100/70' : 'text-slate-400/70'} text-right`}>
                             {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </p>
@@ -310,6 +346,22 @@ export default function Chat() {
 
               <div className="border-t border-white/5 bg-white/5 p-4 shrink-0">
                 <form className="flex gap-3" onSubmit={handleSendMessage}>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingFile}
+                    className="p-3 text-slate-400 hover:text-cyan-400 transition"
+                  >
+                    <svg className={`w-6 h-6 ${uploadingFile ? 'animate-pulse text-cyan-500' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                    </svg>
+                  </button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
                   <input
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
